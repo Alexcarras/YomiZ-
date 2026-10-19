@@ -119,34 +119,70 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Clone Repository (${{ needs.prepare-build.outputs.VERSION_TAG }})
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version-file: .github/.java-version
-          distribution: temurin
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Write dummy google-services.json
         run: |
-          echo '{"project_info":{"project_number":"0","project_id":"dummy","storage_bucket":"dummy"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"app.komikku"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
+          mkdir -p app
+          cat << 'EOF' > app/google-services.json
+          {
+            "project_info": {
+              "project_number": "1234567890",
+              "project_id": "dummy-project",
+              "storage_bucket": "dummy.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1234567890:android:1234567890",
+                  "android_client_info": {
+                    "package_name": "app.komikku"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyDummyKeyForBuildValidationOnly"
+                  }
+                ]
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
 
       - name: Write dummy client_secrets.json
         run: |
           mkdir -p app/src/main/assets
-          echo '{"installed":{"client_id":"dummy","project_id":"dummy","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token"}}' > app/src/main/assets/client_secrets.json
+          cat << 'EOF' > app/src/main/assets/client_secrets.json
+          {
+            "installed": {
+              "client_id": "dummy.apps.googleusercontent.com",
+              "project_id": "dummy-project",
+              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+              "token_uri": "https://oauth2.googleapis.com/token"
+            }
+          }
+          EOF
 
-      - name: Set up gradle
-        uses: gradle/gradle-build-action@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Build app
-        run: ./gradlew assemblePreview -Pinclude-telemetry -Penable-updater -x testReleaseUnitTest -x spotlessCheck
+      - name: Build APK
+        run: ./gradlew assemblePreview -Pinclude-telemetry=false -Penable-updater=false -x testReleaseUnitTest -x spotlessCheck
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v4
         with:
+          name: YomiZa-Preview-APK
           path: "**/*.apk"
           retention-days: 1
           
