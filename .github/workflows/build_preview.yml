@@ -144,7 +144,7 @@ jobs:
                 "client_info": {
                   "mobilesdk_app_id": "1:1234567890:android:1234567890",
                   "android_client_info": {
-                    "package_name": "app.komikku"
+                    "package_name": "app.komikku.beta"
                   }
                 },
                 "oauth_client": [],
@@ -158,7 +158,7 @@ jobs:
             "configuration_version": "1"
           }
           EOF
-
+          
       - name: Write dummy client_secrets.json
         run: |
           mkdir -p app/src/main/assets
@@ -185,4 +185,3 @@ jobs:
           name: YomiZa-Preview-APK
           path: "**/*.apk"
           retention-days: 1
-          
