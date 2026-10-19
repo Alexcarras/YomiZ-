@@ -128,7 +128,15 @@ jobs:
         with:
           java-version-file: .github/.java-version
           distribution: temurin
-          
+
+      - name: Write google-services.json
+        run: |
+          echo '{"project_info":{"project_number":"0","project_id":"dummy","storage_bucket":"dummy"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"app.komikku"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}]}]}' > app/google-services.json
+
+      - name: Write client_secrets.json
+        run: |
+          echo '{"installed":{"client_id":"dummy","project_id":"dummy","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token"}}' > app/src/main/assets/client_secrets.json
+
 
       - name: Set up gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
